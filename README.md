@@ -14,9 +14,10 @@ Documentation available at http://rserizel.github.io/minibatchNMF/
 
 ## Getting Started
 
-A short example is available as a [notebook]
+A short example is available as a [notebook] or classical [python script]
 
-[notebook]: https://github.com/rserizel/minibatchNMF/blob/master/minibatch_BetaNMF_howto.ipynb
+[notebook]: minibatch_BetaNMF_howto.ipynb
+[python script]: minibatch_BetaNMF_howto.py
 
 ## Citation
 
