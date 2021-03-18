@@ -144,7 +144,7 @@ class BetaNMF(object):
             if cache1_size < self.batch_size:
                 raise ValueError('cache1_size should be at '
                                  'least equal to batch_size')
-            self.cache1_size = cache1_size/self.batch_size * self.batch_size
+            self.cache1_size = int(np.ceil(cache1_size/self.batch_size * self.batch_size))
             self.nb_cache1 = int(np.ceil(np.true_divide(self.data_shape[0],
                                                         self.cache1_size)))
         else:
@@ -188,21 +188,21 @@ class BetaNMF(object):
         """Check that all the matrix have consistent shapes
         """
         batch_shape = self.x_cache1.get_value().shape
-        dim = long(self.n_components)
+        dim = int(self.n_components)
         if self.w.get_value().shape != (self.data_shape[1], dim):
-            print "Inconsistent data for W, expected {1}, found {0}".format(
+            print("Inconsistent data for W, expected {1}, found {0}".format(
                 self.w.get_value().shape,
-                (self.data_shape[1], dim))
+                (self.data_shape[1], dim)))
             raise SystemExit
         if self.factors_[0].shape != (self.data_shape[0], dim):
-            print "Inconsistent shape for H, expected {1}, found {0}".format(
+            print("Inconsistent shape for H, expected {1}, found {0}".format(
                 self.factors_[0].shape,
-                (self.data_shape[0], dim))
+                (self.data_shape[0], dim)))
             raise SystemExit
         if self.h_cache1.get_value().shape != (batch_shape[0], dim):
-            print "Inconsistent shape for h_cache1, expected {1}, found {0}".format(
+            print("Inconsistent shape for h_cache1, expected {1}, found {0}".format(
                 self.h_cache1.get_value().shape,
-                (batch_shape[0], dim))
+                (batch_shape[0], dim)))
             raise SystemExit
 
     def fit(self, data, cyclic=False, warm_start=False):
@@ -220,8 +220,8 @@ class BetaNMF(object):
             start from previous values
         """
         self.data_shape = data.shape
-        if (not warm_start) & (self.init_mode is not 'custom'):
-            print "cold start"
+        if (not warm_start) & (self.init_mode != 'custom'):
+            print("cold start")
             self.set_factors(data, fixed_factors=self.fixed_factors)
         self.check_shape()
         self.prepare_batch(False)
@@ -232,13 +232,13 @@ class BetaNMF(object):
                 int(np.floor(self.n_iter/self.verbose)) + 2, 2))
         else:
             scores = np.zeros((2, 2))
-        if self.solver is 'asag_mu' or self.solver is 'gsag_mu':
+        if self.solver == 'asag_mu' or self.solver == 'gsag_mu':
             grad_func = self.get_gradient_mu_sag()
             update_func = self.get_updates()
-        elif self.solver is 'asg_mu' or self.solver is 'gsg_mu':
+        elif self.solver == 'asg_mu' or self.solver == 'gsg_mu':
             grad_func = self.get_gradient_mu_sg()
             update_func = self.get_updates()
-        elif self.solver is 'mu_batch':
+        elif self.solver == 'mu_batch':
             grad_func = self.get_gradient_mu_batch()
             update_func = self.get_updates()
         tick = time.time()
@@ -260,8 +260,8 @@ class BetaNMF(object):
         self.prepare_batch(not cyclic)
         self.prepare_cache1(not cyclic)
 
-        print 'Intitial score = %.2f' % score
-        print 'Fitting NMF model with %d iterations....' % self.n_iter
+        print('Intitial score = %.2f' % score)
+        print('Fitting NMF model with %d iterations....' % self.n_iter)
         if self.nb_cache1 == 1:
             current_cache_ind = np.hstack(self.batch_ind[
                 self.cache1_ind[
@@ -271,7 +271,7 @@ class BetaNMF(object):
                 theano.config.floatX))
             self.h_cache1.set_value(self.factors_[0][
                 current_cache_ind, ].astype(theano.config.floatX))
-            if self.solver is 'sag':
+            if self.solver == 'sag':
                 self.c1_grad_w.set_value(self.old_grad_w[self.cache1_ind[
                         0, self.cache1_ind[0] >= 0]].astype(
                     theano.config.floatX))
@@ -292,7 +292,7 @@ class BetaNMF(object):
 
                     self.h_cache1.set_value(self.factors_[0][
                         current_cache_ind, ].astype(theano.config.floatX))
-                if self.solver is 'sag':
+                if self.solver == 'sag':
                     self.c1_grad_w.set_value(
                         self.old_grad_w[
                             self.cache1_ind[
@@ -309,13 +309,13 @@ class BetaNMF(object):
                                             batch_ind[-1] + 1]).astype(
                         theano.config.floatX)
 
-                    if self.solver is 'mu_batch':
+                    if self.solver == 'mu_batch':
                         self.update_mu_batch_h(batch_ind,
                                                update_func, grad_func)
-                    if self.solver is 'asag_mu' or self.solver is 'asg_mu':
+                    if self.solver == 'asag_mu' or self.solver == 'asg_mu':
                         self.update_mu_sag(batch_ind,
                                            update_func, grad_func)
-                    if self.solver is 'gsag_mu' or self.solver is 'gsg_mu':
+                    if self.solver == 'gsag_mu' or self.solver == 'gsg_mu':
                         grad_func['grad_h'](batch_ind)
                         update_func['train_h'](batch_ind)
                         if batch_i == 0 and cache_ind == 0:
@@ -325,9 +325,9 @@ class BetaNMF(object):
                         self.h_cache1.get_value()
                 else:
                     self.factors_[0] = self.h_cache1.get_value()
-            if self.solver is 'mu_batch':
+            if self.solver == 'mu_batch':
                 self.update_mu_batch_w(update_func)
-            elif self.solver is 'gsag_mu' or self.solver is 'gsg_mu':
+            elif self.solver == 'gsag_mu' or self.solver == 'gsg_mu':
                 update_func['train_w']()
             if self.nb_cache1 > 1:
                 for cache_ind in range(self.nb_cache1):
@@ -351,7 +351,7 @@ class BetaNMF(object):
                 score_ind += 1
                 scores[score_ind, ] = [
                     score, time.time() - tick + scores[score_ind - 1, 1]]
-                print ('Iteration %d / %d, duration=%.1fms, cost=%f'
+                print('Iteration %d / %d, duration=%.1fms, cost=%f'
                        % (it + 1,
                           self.n_iter,
                           scores[score_ind, 1] * 1000,
@@ -360,7 +360,7 @@ class BetaNMF(object):
         score_ind += 1
         scores[score_ind, ] = [
             score, time.time() - tick + scores[score_ind - 1, 1]]
-        print ('Iteration %d / %d, duration=%.1fms, cost=%f'
+        print('Iteration %d / %d, duration=%.1fms, cost=%f'
                % (it + 1,
                   self.n_iter,
                   scores[-1, 1] * 1000,
@@ -641,7 +641,7 @@ class BetaNMF(object):
         """
         self.fixed_factors = [1]
         if not warm_start:
-            print "cold start"
+            print("cold start")
             self.set_factors(data, fixed_factors=self.fixed_factors)
         self.fit(data, warm_start=True)
         return self.factors_[0]

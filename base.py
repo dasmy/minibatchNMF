@@ -16,7 +16,6 @@ from sklearn import preprocessing
 import h5py
 import numpy as np
 import itertools
-import more_itertools
 import theano.tensor as T
 from theano.ifelse import ifelse
 import theano
@@ -50,14 +49,14 @@ def load_data(f_name, dataset, scale=True, rnd=False):
     data = data_file[('x_{0}').format(dataset)][:]
     data_file.close()
     if scale:
-        print "scaling..."
+        print("scaling...")
         data = preprocessing.scale(data, with_mean=False)
-    print "Total dataset size:"
-    print "n samples: %d" % data.shape[0]
-    print "n features: %d" % data.shape[1]
+    print("Total dataset size:")
+    print("n samples: %d" % data.shape[0])
+    print("n features: %d" % data.shape[1])
 
     if rnd:
-        print "Radomizing..."
+        print("Radomizing...")
         np.random.shuffle(data)
     data_dic = dict(
         x=data,
@@ -98,17 +97,17 @@ def load_all_data(f_name, scale=True, rnd=False):
     x_train = data_file['x_train'][:]
     data_file.close()
     if scale:
-        print "scaling..."
+        print("scaling...")
         x_test = preprocessing.scale(x_test, with_mean=False)
         x_dev = preprocessing.scale(x_dev, with_mean=False)
         x_train = preprocessing.scale(x_train, with_mean=False)
-    print "Total dataset size:"
-    print "n train samples: %d" % x_train.shape[0]
-    print "n test samples: %d" % x_test.shape[0]
-    print "n dev samples: %d" % x_dev.shape[0]
-    print "n features: %d" % x_test.shape[1]
+    print("Total dataset size:")
+    print("n train samples: %d" % x_train.shape[0])
+    print("n test samples: %d" % x_test.shape[0])
+    print("n dev samples: %d" % x_dev.shape[0])
+    print("n features: %d" % x_test.shape[1])
     if rnd:
-        print "Radomizing training set..."
+        print("Radomizing training set...")
         np.random.shuffle(x_train)
 
     data_dict = dict(
@@ -141,8 +140,8 @@ def load_labels(f_name, dataset):
     data_file = h5py.File(f_name, 'r')
     labels = data_file[('y_{0}').format(dataset)][:]
     data_file.close()
-    print "Total dataset size:"
-    print "n samples: %d" % labels.shape[0]
+    print("Total dataset size:")
+    print("n samples: %d" % labels.shape[0])
     lbl_dict = dict(
         y=labels,
     )
@@ -171,8 +170,8 @@ def load_fids(f_name, dataset):
     data_file = h5py.File(f_name, 'r')
     file_ids = data_file[('file {0}').format(dataset)][:]
     data_file.close()
-    print "Total dataset size:"
-    print "n samples: %d" % file_ids.shape[0]
+    print("Total dataset size:")
+    print("n samples: %d" % file_ids.shape[0])
     fids_dic = dict(
         f=file_ids,
     )
@@ -207,10 +206,10 @@ def load_all_labels(f_name):
     y_dev = data_file['y_dev'][:]
     y_train = data_file['y_train'][:]
     data_file.close()
-    print "Total dataset size:"
-    print "n train samples: %d" % y_train.shape[0]
-    print "n test samples: %d" % y_test.shape[0]
-    print "n dev samples: %d" % y_dev.shape[0]
+    print("Total dataset size:")
+    print("n train samples: %d" % y_train.shape[0])
+    print("n test samples: %d" % y_test.shape[0])
+    print("n dev samples: %d" % y_dev.shape[0])
 
     lbl_dic = dict(
         y_train=y_train,
@@ -248,10 +247,10 @@ def load_all_fids(f_name):
     f_dev = data_file['file dev'][:]
     f_train = data_file['file train'][:]
     data_file.close()
-    print "Total dataset size:"
-    print "n train samples: %d" % f_train.shape[0]
-    print "n test samples: %d" % f_test.shape[0]
-    print "n dev samples: %d" % f_dev.shape[0]
+    print("Total dataset size:")
+    print("n train samples: %d" % f_train.shape[0])
+    print("n test samples: %d" % f_test.shape[0])
+    print("n dev samples: %d" % f_dev.shape[0])
 
     fids_dic = dict(
         f_train=f_train,
@@ -290,7 +289,7 @@ def load_data_labels(f_name, dataset, scale=True, rnd=False):
     data = load_data(f_name, dataset, scale)
     labels = load_labels(f_name, dataset)
     if rnd:
-        print "Radomizing training set..."
+        print("Radomizing training set...")
         ind = np.arange(labels['y'].shape[0])
         np.random.shuffle(ind)
         data['x'] = data['x'][ind, ]
@@ -342,7 +341,7 @@ def load_all_data_labels(f_name, scale=True, rnd=False):
     data = load_all_data(f_name, scale)
     labels = load_all_labels(f_name)
     if rnd:
-        print "Radomizing training set..."
+        print("Radomizing training set...")
         ind = np.arange(labels['y_train'].shape[0])
         np.random.shuffle(ind)
         data['x_train'] = data['x_train'][ind, ]
@@ -392,7 +391,7 @@ def load_data_labels_fids(f_name, dataset, scale=True, rnd=False):
     labels = load_labels(f_name, dataset)
     fids = load_fids(f_name, dataset)
     if rnd:
-        print "Radomizing training set..."
+        print("Radomizing training set...")
         ind = np.arange(labels['y'].shape[0])
         np.random.shuffle(ind)
         data['x'] = data['x'][ind, ]
@@ -456,7 +455,7 @@ def load_all_data_labels_fids(f_name, scale=True, rnd=False):
     labels = load_all_labels(f_name)
     fids = load_all_fids(f_name)
     if rnd:
-        print "Radomizing training set..."
+        print("Radomizing training set...")
         ind = np.arange(labels['y_train'].shape[0])
         np.random.shuffle(ind)
         data['x_train'] = data['x_train'][ind, ]
